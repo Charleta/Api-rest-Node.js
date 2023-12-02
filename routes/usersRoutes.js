@@ -1,0 +1,46 @@
+const express = require('express');
+const router = express.Router();
+const userController = require('../controllers/userController');
+const jwt = require('jsonwebtoken');
+const clave = 'appKey'; 
+
+function validateToken( req, res, next ) {
+    let token = req.headers.authorization;
+
+    
+    
+
+    if (!token){
+        return res.status(401).json({message: 'Acceso no autorizado'});
+    }
+        
+    token = token.split(' ')[1];
+    
+
+    console.log( token);
+    
+    jwt.verify(token, clave, (error, decoded) => {
+
+        if( error) {
+            console.log(token);
+            return res.status(403).json({ msg: 'Token invalido'})
+        }
+        // Retorno el id del usuario
+        req.userId = decoded.userId;
+        next();
+    })
+    
+}
+
+
+router.post('/', userController.addUser);
+router.post('/auth', userController.auth);
+router.get('/', validateToken, userController.getAllUsers);
+router.get('/:userId', validateToken, userController.getUserById);
+router.put('/:userId', validateToken, userController.updateUser);
+router.delete('/:userId', validateToken, userController.deleteUser);
+
+
+
+
+module.exports = router;
