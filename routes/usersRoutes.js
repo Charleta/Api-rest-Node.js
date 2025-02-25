@@ -1,8 +1,12 @@
-const express = require('express');
-const router = express.Router();
-const userController = require('../controllers/userController');
-const jwt = require('jsonwebtoken');
+import express from 'express';
+
+import * as userController from "../controllers/userController.js";
+import jwt from'jsonwebtoken';
+
+
 const clave = 'appKey'; 
+const router = express.Router();
+
 
 function validateToken( req, res, next ) {
     let token = req.headers.authorization;
@@ -43,4 +47,4 @@ router.delete('/:userId', validateToken, userController.deleteUser);
 
 
 
-module.exports = router;
+export default router;

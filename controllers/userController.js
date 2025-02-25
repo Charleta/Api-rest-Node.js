@@ -1,59 +1,54 @@
-const userModel = require('../models/userModel');
-const bcrypt = require('bcrypt');
+import userModel from '../models/userModel.js';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 const salt = 10;
-const jwt = require('jsonwebtoken');
 const clave = 'appKey'; 
 
 
 //Agregar usuario
+export const addUser = async (req, res) => {
+  try {
+    const { name, email, password, role } = req.body;
 
-exports.addUser = async (req, res) => {
-
-    try {
-        const { name, email, password, role } = req.body;
-
-        if (!name || name.trim().length === 0 || name.length < 3) {
-            return res.status(400).json({ message: 'Nombre no válido' }); //validacion de nombre
-        };
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // validacion de mail, en formato antes del arroba y despues
-
-        if (!email || !email.match(emailRegex)) {
-            return res.status(400).json({ message: 'Correo electrónico no válido' });
-        };
-
-        if (!password || password.length < 6) {
-            return res.status(400).json({ message: 'Contraseña no válida' });
-        }
-
-        if (!role || role !== 'admin' && role !== 'bloguero') {
-            return res.status(400).json({ message: 'Rol no válido' });
-        }
-
-
-
-        const passwordHash = await bcrypt.hash(password, salt);
-
-        const user = new userModel({
-            name,
-            email,
-            password: passwordHash,
-            role
-        });
-
-        await user.save();
-
-        res.status(201).json({ message: 'Usuario creado con éxito', user });
-
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({message: 'Hubo un error en el servidor'});
+    if (!name || name.trim().length === 0 || name.length < 3) {
+      return res.status(400).json({ message: "Nombre no válido" }); //validacion de nombre
     }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // validacion de mail, en formato antes del arroba y despues
+
+    if (!email || !email.match(emailRegex)) {
+      return res.status(400).json({ message: "Correo electrónico no válido" });
+    }
+
+    if (!password || password.length < 6) {
+      return res.status(400).json({ message: "Contraseña no válida" });
+    }
+
+    if (!role || (role !== "admin" && role !== "bloguero")) {
+      return res.status(400).json({ message: "Rol no válido" });
+    }
+
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    const user = new userModel({
+      name,
+      email,
+      password: passwordHash,
+      role,
+    });
+
+    await user.save();
+
+    res.status(201).json({ message: "Usuario creado con éxito", user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Hubo un error en el servidor" });
+  }
 };
 
 //funcion de autentificacion
 
-exports.auth = async (req, res) => {
+export const auth = async (req, res) => {
     const {email, password} = req.body;
 
     if (!email || !password){
@@ -82,7 +77,7 @@ exports.auth = async (req, res) => {
 
 //Obtener todos los usuarios
 
-exports.getAllUsers = async (req, res) => {
+export const getAllUsers = async (req, res) => {
     try {
         const users = await userModel.find();
         res.status(200).json(users);
@@ -94,7 +89,7 @@ exports.getAllUsers = async (req, res) => {
 
 //usuario por el id
 
-exports.getUserById = async (req, res) => {
+export const getUserById = async (req, res) => {
     try{
         const id = req.params.userId;
         const user = await userModel.findById(id);
@@ -113,7 +108,7 @@ exports.getUserById = async (req, res) => {
 
 
 
-exports.updateUser = async (req, res) => {
+export const updateUser = async (req, res) => {
     try{
         const id = req.params.userId;
         const { name, email, password } = req.body;
@@ -153,7 +148,7 @@ exports.updateUser = async (req, res) => {
 
 
 
-exports.deleteUser = async (req, res) => {
+export const deleteUser = async (req, res) => {
     try{
         const id = req.params.userId;
         const filter = {_id: id};
